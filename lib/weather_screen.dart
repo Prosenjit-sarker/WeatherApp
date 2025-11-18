@@ -27,12 +27,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
   List<_Daily> _dailies = [];
 
   // --------network---------
-  Future<({String? city, double? lat, double? lon})> geoLocation(String city) async {
+  Future<({String? city, double? lat, double? lon})> geoLocation(
+    String city,
+  ) async {
     try {
       final url = Uri.parse(
-          'https://geocoding-api.open-meteo.com/v1/search?name=$city&count=1&format=json');
+        'https://geocoding-api.open-meteo.com/v1/search?name=$city&count=1&format=json',
+      );
       final res = await http.get(url);
-      if (res.statusCode != 200) throw Exception('Geocoding failed ${res.statusCode}');
+      if (res.statusCode != 200)
+        throw Exception('Geocoding failed ${res.statusCode}');
       final deData = jsonDecode(res.body) as Map<String, dynamic>;
       final results = (deData['results'] as List?) ?? [];
       if (results.isEmpty) throw Exception('City Not found');
@@ -58,17 +62,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
       final getGeoData = await geoLocation(city);
 
       final url = Uri.parse(
-          'https://api.open-meteo.com/v1/forecast'
-              '?latitude=${getGeoData.lat}&longitude=${getGeoData.lon}'
-              '&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset'
-              '&hourly=temperature_2m,weather_code,wind_speed_10m'
-              '&current=temperature_2m,weather_code,wind_speed_10m'
-              '&forecast_days=10'
-              '&timezone=Asia%2FDhaka'
+        'https://api.open-meteo.com/v1/forecast'
+        '?latitude=${getGeoData.lat}&longitude=${getGeoData.lon}'
+        '&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset'
+        '&hourly=temperature_2m,weather_code,wind_speed_10m'
+        '&current=temperature_2m,weather_code,wind_speed_10m'
+        '&forecast_days=10'
+        '&timezone=Asia%2FDhaka',
       );
 
       final res = await http.get(url);
-      if (res.statusCode != 200) throw Exception('Weather API failed ${res.statusCode}');
+      if (res.statusCode != 200)
+        throw Exception('Weather API failed ${res.statusCode}');
       final deData = jsonDecode(res.body) as Map<String, dynamic>;
 
       // current
@@ -86,12 +91,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
       final outHourly = <_Hourly>[];
       for (var i = 0; i < hTimes.length; i++) {
-        outHourly.add(_Hourly(
-          DateTime.parse(hTimes[i]),
-          (hTemps[i]).toDouble(),
-          (hCodes[i]).toInt(),
-          (hWinds[i]).toDouble(),
-        ));
+        outHourly.add(
+          _Hourly(
+            DateTime.parse(hTimes[i]),
+            (hTemps[i]).toDouble(),
+            (hCodes[i]).toInt(),
+            (hWinds[i]).toDouble(),
+          ),
+        );
       }
 
       // daily
@@ -173,13 +180,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.blue,
-                  Colors.blueAccent,
-                  Colors.white70,
-                ]),
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.blue, Colors.blueAccent, Colors.white70],
+            ),
           ),
           child: SafeArea(
             child: ListView(
@@ -197,8 +201,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           labelText: 'Enter city ( e.g. Dhaka )',
                           labelStyle: const TextStyle(color: Colors.white),
                           enabledBorder: OutlineInputBorder(
-                            borderSide:
-                            BorderSide(color: Colors.white.withOpacity(0.5)),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.5),
+                            ),
                           ),
                           focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
@@ -215,14 +220,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                       ),
                       child: const Text(
                         'Go',
                         style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ],
@@ -247,13 +255,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     Text(
                       _resolvedCity ?? 'Bangladesh',
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 28,
-                          color: Colors.white70),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                        color: Colors.white70,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Icon(_codeToIcon(_wCode),
-                        size: 90, color: Colors.white70),
+                    Icon(_codeToIcon(_wCode), size: 90, color: Colors.white70),
                   ],
                 ),
 
@@ -264,9 +272,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     child: Text(
                       '${_tempC!.toStringAsFixed(0)} °C',
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 96,
-                          color: Colors.white70),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 96,
+                        color: Colors.white70,
+                      ),
                     ),
                   ),
 
@@ -275,7 +284,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     child: Text(
                       'H: ${_hi!.toStringAsFixed(0)}°   L: ${_lo!.toStringAsFixed(0)}°',
                       style: const TextStyle(
-                          fontSize: 20, color: Colors.white70),
+                        fontSize: 20,
+                        color: Colors.white70,
+                      ),
                     ),
                   ),
 
@@ -289,8 +300,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                          '${_wText ?? "Clear"} conditions likely today. Wind up to ${_windKph!.toStringAsFixed(1)} km/h.',
-                          style: const TextStyle(fontSize: 16)),
+                        '${_wText ?? "Clear"} conditions likely today. Wind up to ${_windKph!.toStringAsFixed(1)} km/h.',
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
 
@@ -308,7 +320,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           const Text(
                             "24-Hour Forecast",
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           SizedBox(
@@ -318,16 +332,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               itemCount: 24,
                               itemBuilder: (_, i) {
                                 final h = _hourlies[i];
-                                final label =
-                                i == 0 ? 'Now' : '${h.t.hour}';
+                                final label = i == 0 ? 'Now' : '${h.t.hour}';
                                 return Container(
                                   width: 70,
                                   margin: const EdgeInsets.symmetric(
-                                      horizontal: 4),
+                                    horizontal: 4,
+                                  ),
                                   padding: const EdgeInsets.all(8),
                                   child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
                                         label,
@@ -337,8 +350,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 6),
-                                      Icon(_codeToIcon(h.code),
-                                          color: Colors.blue, size: 24),
+                                      Icon(
+                                        _codeToIcon(h.code),
+                                        color: Colors.blue,
+                                        size: 24,
+                                      ),
                                       const SizedBox(height: 6),
                                       Text(
                                         '${h.temp.toStringAsFixed(0)}°',
@@ -379,7 +395,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           child: Text(
                             "10-Day Forecast",
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const Divider(),
@@ -393,15 +411,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                           final dayText = index == 0
                               ? "Today"
-                              : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-                          [d.date.weekday % 7];
+                              : [
+                                  "Sun",
+                                  "Mon",
+                                  "Tue",
+                                  "Wed",
+                                  "Thu",
+                                  "Fri",
+                                  "Sat",
+                                ][d.date.weekday % 7];
 
                           // Find most frequent weather code for the day
                           final dailyCode = () {
-                            final hForDay = _hourlies.where((h) =>
-                            h.t.year == d.date.year &&
-                                h.t.month == d.date.month &&
-                                h.t.day == d.date.day);
+                            final hForDay = _hourlies.where(
+                              (h) =>
+                                  h.t.year == d.date.year &&
+                                  h.t.month == d.date.month &&
+                                  h.t.day == d.date.day,
+                            );
 
                             if (hForDay.isEmpty) return _wCode ?? 1;
 
@@ -411,8 +438,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             }
 
                             return freq.entries
-                                .reduce((a, b) =>
-                            a.value > b.value ? a : b)
+                                .reduce((a, b) => a.value > b.value ? a : b)
                                 .key;
                           }();
 
@@ -422,7 +448,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
                             child: Row(
                               children: [
                                 // DAY NAME
@@ -455,11 +483,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         height: 6,
                                         decoration: BoxDecoration(
                                           color: Colors.orange.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
                                       ),
                                       Align(
-                                        alignment: Alignment.centerRight,  // 👈 RIGHT SIDE START
+                                        alignment: Alignment
+                                            .centerRight, // 👈 RIGHT SIDE START
                                         child: FractionallySizedBox(
                                           widthFactor: progress,
                                           alignment: Alignment.centerRight,
@@ -467,7 +498,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                             height: 6,
                                             decoration: BoxDecoration(
                                               color: Colors.orange,
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
                                           ),
                                         ),
@@ -475,7 +507,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     ],
                                   ),
                                 ),
-
 
                                 const SizedBox(width: 12),
 
@@ -509,7 +540,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ],
                             ),
                           );
-                        }).toList()
+                        }).toList(),
                       ],
                     ),
                   ),
