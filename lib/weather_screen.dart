@@ -27,19 +27,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
   List<_Daily> _dailies = [];
 
   // --------network---------
-  Future<({String? city, double? lat, double? lon})> geoLocation(
-    String city,
-  ) async {
+  Future<({String? city, double? lat, double? lon})> geoLocation(String city) async {
     try {
-      final url = Uri.parse(
-        'https://geocoding-api.open-meteo.com/v1/search?name=$city&count=1&format=json',
-      );
+      final url = Uri.parse('https://geocoding-api.open-meteo.com/v1/search?name=$city&count=1&format=json');
       final res = await http.get(url);
-      if (res.statusCode != 200)
+      if (res.statusCode != 200) {
         throw Exception('Geocoding failed ${res.statusCode}');
+      }
       final deData = jsonDecode(res.body) as Map<String, dynamic>;
       final results = (deData['results'] as List?) ?? [];
-      if (results.isEmpty) throw Exception('City Not found');
+      if (results.isEmpty) throw Exception('City not found');
 
       final m = results.first as Map<String, dynamic>;
       final lat = (m['latitude'] as num).toDouble();
@@ -72,8 +69,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       );
 
       final res = await http.get(url);
-      if (res.statusCode != 200)
-        throw Exception('Weather API failed ${res.statusCode}');
+      if (res.statusCode != 200) throw Exception('Weather API failed ${res.statusCode}');
       final deData = jsonDecode(res.body) as Map<String, dynamic>;
 
       // current
@@ -92,12 +88,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       final outHourly = <_Hourly>[];
       for (var i = 0; i < hTimes.length; i++) {
         outHourly.add(
-          _Hourly(
-            DateTime.parse(hTimes[i]),
-            (hTemps[i]).toDouble(),
-            (hCodes[i]).toInt(),
-            (hWinds[i]).toDouble(),
-          ),
+          _Hourly(DateTime.parse(hTimes[i]), (hTemps[i]).toDouble(), (hCodes[i]).toInt(), (hWinds[i]).toDouble()),
         );
       }
 
@@ -109,13 +100,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
       final outDaily = <_Daily>[];
       for (var i = 0; i < dTimes.length; i++) {
-        outDaily.add(
-          _Daily(
-            DateTime.parse(dTimes[i]),
-            (dMin[i]).toDouble(),
-            (dMax[i]).toDouble(),
-          ),
-        );
+        outDaily.add(_Daily(DateTime.parse(dTimes[i]), (dMin[i]).toDouble(), (dMax[i]).toDouble()));
       }
 
       // H & L today
@@ -131,6 +116,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         _hourlies = outHourly;
         _dailies = outDaily;
       });
+      // Clear search bar after successful search
+      _searchCtr.clear();
     } catch (e) {
       setState(() => error = e.toString());
     } finally {
@@ -201,13 +188,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           labelText: 'Enter city ( e.g. Dhaka )',
                           labelStyle: const TextStyle(color: Colors.white),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.white.withOpacity(0.5),
-                            ),
+                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
                           ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
+                          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                         ),
                       ),
                     ),
@@ -216,21 +199,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       onPressed: loading ? null : () => _fetch(_searchCtr.text),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.white70,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
                       child: const Text(
                         'Go',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ),
                   ],
@@ -238,8 +212,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                 const SizedBox(height: 16),
                 if (loading) const LinearProgressIndicator(),
-                if (error != null)
-                  Text(error!, style: const TextStyle(color: Colors.red)),
+                if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
                 const SizedBox(height: 8),
 
                 // LOCATION + MAIN INFO
@@ -247,18 +220,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   children: [
                     const Text(
                       'MY LOCATION',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       _resolvedCity ?? 'Bangladesh',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                        color: Colors.white70,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28, color: Colors.white70),
                     ),
                     const SizedBox(height: 8),
                     Icon(_codeToIcon(_wCode), size: 90, color: Colors.white70),
@@ -271,11 +237,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   Center(
                     child: Text(
                       '${_tempC!.toStringAsFixed(0)} °C',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 96,
-                        color: Colors.white70,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 96, color: Colors.white70),
                     ),
                   ),
 
@@ -283,10 +245,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   Center(
                     child: Text(
                       'H: ${_hi!.toStringAsFixed(0)}°   L: ${_lo!.toStringAsFixed(0)}°',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white70,
-                      ),
+                      style: const TextStyle(fontSize: 20, color: Colors.white70),
                     ),
                   ),
 
@@ -317,13 +276,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "24-Hour Forecast",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          const Text("24-Hour Forecast", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 12),
                           SizedBox(
                             height: 120,
@@ -335,41 +288,23 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 final label = i == 0 ? 'Now' : '${h.t.hour}';
                                 return Container(
                                   width: 70,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
                                   padding: const EdgeInsets.all(8),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        label,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14,
-                                        ),
-                                      ),
+                                      Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                                       const SizedBox(height: 6),
-                                      Icon(
-                                        _codeToIcon(h.code),
-                                        color: Colors.blue,
-                                        size: 24,
-                                      ),
+                                      Icon(_codeToIcon(h.code), color: Colors.blue, size: 24),
                                       const SizedBox(height: 6),
                                       Text(
                                         '${h.temp.toStringAsFixed(0)}°',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         '${h.wind.toStringAsFixed(0)}km/h',
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.grey,
-                                        ),
+                                        style: const TextStyle(fontSize: 10, color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -392,13 +327,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(16.0),
-                          child: Text(
-                            "10-Day Forecast",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Text("10-Day Forecast", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         ),
                         const Divider(),
 
@@ -411,23 +340,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
                           final dayText = index == 0
                               ? "Today"
-                              : [
-                                  "Sun",
-                                  "Mon",
-                                  "Tue",
-                                  "Wed",
-                                  "Thu",
-                                  "Fri",
-                                  "Sat",
-                                ][d.date.weekday % 7];
+                              : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.date.weekday % 7];
 
                           // Find most frequent weather code for the day
                           final dailyCode = () {
                             final hForDay = _hourlies.where(
-                              (h) =>
-                                  h.t.year == d.date.year &&
-                                  h.t.month == d.date.month &&
-                                  h.t.day == d.date.day,
+                              (h) => h.t.year == d.date.year && h.t.month == d.date.month && h.t.day == d.date.day,
                             );
 
                             if (hForDay.isEmpty) return _wCode ?? 1;
@@ -437,20 +355,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               freq[h.code] = (freq[h.code] ?? 0) + 1;
                             }
 
-                            return freq.entries
-                                .reduce((a, b) => a.value > b.value ? a : b)
-                                .key;
+                            return freq.entries.reduce((a, b) => a.value > b.value ? a : b).key;
                           }();
 
                           // progress based on global hi/lo
-                          final progress = ((d.tMax - _lo!) / (_hi! - _lo!))
-                              .clamp(0.0, 1.0);
+                          final progress = ((d.tMax - _lo!) / (_hi! - _lo!)).clamp(0.0, 1.0);
 
                           return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             child: Row(
                               children: [
                                 // DAY NAME
@@ -458,19 +370,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   width: 60,
                                   child: Text(
                                     dayText,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                   ),
                                 ),
 
                                 // ICON
-                                Icon(
-                                  _codeToIcon(dailyCode),
-                                  color: Colors.blue,
-                                  size: 26,
-                                ),
+                                Icon(_codeToIcon(dailyCode), color: Colors.blue, size: 26),
 
                                 const SizedBox(width: 12),
 
@@ -482,15 +387,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                       Container(
                                         height: 6,
                                         decoration: BoxDecoration(
-                                          color: Colors.orange.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
+                                          color: Colors.orange.withValues(alpha: 0.3),
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
                                       ),
                                       Align(
-                                        alignment: Alignment
-                                            .centerRight, // 👈 RIGHT SIDE START
+                                        alignment: Alignment.centerRight, // 👈 RIGHT SIDE START
                                         child: FractionallySizedBox(
                                           widthFactor: progress,
                                           alignment: Alignment.centerRight,
@@ -498,8 +400,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                             height: 6,
                                             decoration: BoxDecoration(
                                               color: Colors.orange,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
+                                              borderRadius: BorderRadius.circular(20),
                                             ),
                                           ),
                                         ),
@@ -516,10 +417,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   child: Text(
                                     '${d.tMax.toStringAsFixed(0)}°',
                                     textAlign: TextAlign.right,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                 ),
 
@@ -531,16 +429,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   child: Text(
                                     '${d.tMin.toStringAsFixed(0)}°',
                                     textAlign: TextAlign.right,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey,
-                                    ),
+                                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                                   ),
                                 ),
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),
